@@ -1028,13 +1028,31 @@ function ContactSection() {
     segmento: "", volume: "", mensagem: "",
   });
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   const update = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }));
 
-  const submit = () => {
-    if (!form.nome || !form.email) return;
-    setSent(true);
+  const submit = async () => {
+    if (!form.nome || !form.email) {
+      setError("Por favor, preencha o nome e o email.");
+      return;
+    }
+    setError("");
+    try {
+      const res = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Falha ao enviar o pedido.");
+      }
+      setSent(true);
+    } catch (e) {
+      setError(e.message || "Falha ao enviar o pedido. Tente novamente.");
+    }
   };
 
   return (
@@ -1141,6 +1159,9 @@ function ContactSection() {
                   />
                 </div>
               </div>
+              {error && (
+                <p className="mt-5 text-sm font-medium text-red-600">{error}</p>
+              )}
               <button
                 onClick={submit}
                 className="mt-7 w-full sm:w-auto inline-flex justify-center rounded-full bg-[#2563EB] px-8 py-3.5 text-sm font-semibold text-white hover:bg-[#1d4fd1] transition-colors"
