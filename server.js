@@ -1,15 +1,16 @@
+import "dotenv/config";
+import express from "express";
 import nodemailer from "nodemailer";
+
+const app = express();
+app.use(express.json());
 
 function sanitize(str) {
   if (typeof str !== "string") return "";
   return str.replace(/<[^>]*>/g, "").trim();
 }
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Método não permitido" });
-  }
-
+app.post("/api/send-email", async (req, res) => {
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_APP_PASSWORD;
   const to = process.env.EMAIL_TO || "armandoexpress9@gmail.com";
@@ -123,4 +124,9 @@ export default async function handler(req, res) {
       .status(500)
       .json({ error: "Falha ao enviar o email. Tente novamente." });
   }
-}
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Servidor API a correr na porta ${PORT}`);
+});

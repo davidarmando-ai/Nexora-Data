@@ -104,7 +104,7 @@ function Navbar() {
           href="#contacto"
           className="hidden lg:inline-flex items-center gap-2 rounded-full bg-[#2563EB] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_-8px_rgba(37,99,235,0.6)] hover:bg-[#1d4fd1] transition-colors"
         >
-          Solicitar diagnóstico
+          Solicitar orçamento
         </a>
 
         <button
@@ -134,7 +134,7 @@ function Navbar() {
             onClick={() => setOpen(false)}
             className="inline-flex justify-center rounded-full bg-[#2563EB] px-5 py-3 text-sm font-semibold text-white"
           >
-            Solicitar diagnóstico
+            Solicitar orçamento
           </a>
         </div>
       )}
@@ -662,7 +662,7 @@ const plans = [
     name: "Essencial", price: "20.000 Kz", highlighted: false,
     desc: "Ideal para pequenas empresas que precisam começar a acompanhar os seus principais indicadores.",
     items: ["Dashboard básico", "KPIs principais", "Tratamento básico dos dados", "Análise inicial", "Entrega digital"],
-    cta: "Solicitar diagnóstico",
+    cta: "Solicitar orçamento",
   },
   {
     name: "Performance", price: "35.000 Kz", highlighted: true,
@@ -998,7 +998,7 @@ function FinalCta() {
               href="#contacto"
               className="inline-flex justify-center items-center rounded-full bg-[#38BDF8] px-7 py-3.5 text-[15px] font-semibold text-[#0B1F3A] hover:bg-[#20aef0] transition-colors"
             >
-              Solicitar diagnóstico gratuito
+              Solicitar orçamento gratuito
             </a>
             <a
               href={whatsappLink("Olá! Quero solicitar um diagnóstico gratuito da Nexora Data.")}
@@ -1017,28 +1017,71 @@ function FinalCta() {
   );
 }
 
-const segmentOptions = [
-  "Loja", "Restaurante", "Supermercado", "Distribuidora",
-  "Salão / barbearia", "Loja de eletrónicos", "Empresa de serviços", "Outro",
+const interesseOptions = [
+  "Dashboard",
+  "Análise de vendas",
+  "Dashboard + análise de dados",
+  "Análise de clientes",
+  "Análise de produtos",
+  "Análise financeira",
+  "Acompanhamento mensal",
+  "Ainda não sei — quero orientação",
+  "Outro",
 ];
 
 function ContactSection() {
   const [form, setForm] = useState({
-    nome: "", empresa: "", email: "", whatsapp: "",
-    segmento: "", volume: "", mensagem: "",
+    nome: "",
+    empresa: "",
+    email: "",
+    telefone: "",
+    interesse: "",
+    mensagem: "",
   });
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [status, setStatus] = useState("idle");
+  const [serverError, setServerError] = useState("");
+  const lastSubmitRef = useRef(0);
 
-  const update = (field) => (e) =>
+  const update = (field) => (e) => {
     setForm((f) => ({ ...f, [field]: e.target.value }));
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  };
+
+  const validate = () => {
+    const e = {};
+    if (!form.nome.trim()) e.nome = "Por favor, informe o seu nome.";
+    if (!form.empresa.trim())
+      e.empresa = "Por favor, informe o nome da sua empresa.";
+    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      e.email = "Introduza um email válido.";
+    if (!form.telefone.trim())
+      e.telefone = "Por favor, informe o seu telefone/WhatsApp.";
+    if (!form.interesse) e.interesse = "Selecione o que procura.";
+    if (!form.mensagem.trim())
+      e.mensagem = "Conte-nos um pouco mais sobre o que procura.";
+    if (!consent) e.consent = "É necessário aceitar a política de privacidade.";
+    return e;
+  };
 
   const submit = async () => {
-    if (!form.nome || !form.email) {
-      setError("Por favor, preencha o nome e o email.");
+    const e = validate();
+    if (Object.keys(e).length > 0) {
+      setErrors(e);
       return;
     }
-    setError("");
+    if (Date.now() - lastSubmitRef.current < 3000) return;
+    lastSubmitRef.current = Date.now();
+
+    setErrors({});
+    setServerError("");
+    setStatus("sending");
+
     try {
       const res = await fetch("/api/send-email", {
         method: "POST",
@@ -1049,11 +1092,126 @@ function ContactSection() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Falha ao enviar o pedido.");
       }
-      setSent(true);
-    } catch (e) {
-      setError(e.message || "Falha ao enviar o pedido. Tente novamente.");
+      setStatus("success");
+    } catch (err) {
+      setStatus("error");
+      setServerError(
+        err.message || "Não foi possível enviar a sua solicitação. Por favor, tente novamente."
+      );
     }
   };
+
+  const whatsappMsg = `Olá, Nexora Data! 👋\n\nAcabei de solicitar um orçamento através do site e gostaria de falar sobre o meu projeto.\n\nNome: ${form.nome}\nEmpresa: ${form.empresa}\nInteresse: ${form.interesse}\n\nMensagem:\n${form.mensagem}`;
+  const whatsappUrl = `https://wa.me/244959518914?text=${encodeURIComponent(whatsappMsg)}`;
+
+  if (status === "success") {
+    return (
+      <section id="contacto" className="bg-[#F8FAFC] py-24 lg:py-28">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10 grid lg:grid-cols-5 gap-14">
+          <Reveal className="lg:col-span-2">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#0B1F3A] mb-5">
+              Vamos analisar os seus dados.
+            </h2>
+            <p className="text-[#0B1F3A]/60 leading-relaxed mb-8">
+              Preencha o formulário com alguns detalhes do seu negócio e entramos em
+              contacto para o diagnóstico inicial.
+            </p>
+            <a
+              href={whatsappLink("Olá! Gostaria de falar sobre a Nexora Data.")}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full bg-white ring-1 ring-[#0B1F3A]/10 px-5 py-3 text-sm font-semibold text-[#0B1F3A] hover:ring-[#2563EB]/30 transition-colors"
+            >
+              <MessageCircle size={17} className="text-[#2563EB]" />
+              Falar pelo WhatsApp
+            </a>
+          </Reveal>
+
+          <Reveal delay={100} className="lg:col-span-3">
+            <div className="rounded-2xl bg-white ring-1 ring-[#0B1F3A]/8 p-8 sm:p-10 text-center">
+              <CheckCircle2 size={36} className="text-[#25D366] mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-[#0B1F3A] mb-2">
+                Solicitação enviada com sucesso! ✓
+              </h3>
+              <p className="text-sm text-[#0B1F3A]/60 leading-relaxed max-w-md mx-auto mb-6">
+                Obrigado pelo seu interesse na Nexora Data.
+                <br />
+                Recebemos as suas informações e iremos analisar a sua solicitação.
+              </p>
+              <div className="border-t border-[#0B1F3A]/8 pt-6 mt-2">
+                <p className="text-base font-semibold text-[#0B1F3A] mb-1">
+                  Quer falar connosco agora?
+                </p>
+                <p className="text-sm text-[#0B1F3A]/55 mb-5 max-w-sm mx-auto">
+                  Uma mensagem com os principais detalhes da sua solicitação foi preparada
+                  no WhatsApp. Basta confirmar o envio.
+                </p>
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex justify-center items-center gap-2 rounded-full bg-[#25D366] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_25px_-8px_rgba(37,211,102,0.5)] hover:bg-[#1fb855] transition-colors"
+                >
+                  <MessageCircle size={17} />
+                  Continuar pelo WhatsApp
+                </a>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    );
+  }
+
+  if (status === "error") {
+    return (
+      <section id="contacto" className="bg-[#F8FAFC] py-24 lg:py-28">
+        <div className="max-w-6xl mx-auto px-6 lg:px-10 grid lg:grid-cols-5 gap-14">
+          <Reveal className="lg:col-span-2">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#0B1F3A] mb-5">
+              Vamos analisar os seus dados.
+            </h2>
+            <p className="text-[#0B1F3A]/60 leading-relaxed mb-8">
+              Preencha o formulário com alguns detalhes do seu negócio e entramos em
+              contacto para o diagnóstico inicial.
+            </p>
+            <a
+              href={whatsappLink("Olá! Gostaria de falar sobre a Nexora Data.")}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2.5 rounded-full bg-white ring-1 ring-[#0B1F3A]/10 px-5 py-3 text-sm font-semibold text-[#0B1F3A] hover:ring-[#2563EB]/30 transition-colors"
+            >
+              <MessageCircle size={17} className="text-[#2563EB]" />
+              Falar pelo WhatsApp
+            </a>
+          </Reveal>
+
+          <Reveal delay={100} className="lg:col-span-3">
+            <div className="rounded-2xl bg-white ring-1 ring-[#0B1F3A]/8 p-8 sm:p-10 text-center">
+              <div className="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                <X size={24} className="text-red-500" />
+              </div>
+              <h3 className="text-lg font-bold text-[#0B1F3A] mb-2">
+                Não foi possível enviar a sua solicitação.
+              </h3>
+              <p className="text-sm text-[#0B1F3A]/60 mb-6 max-w-sm mx-auto">
+                {serverError || "Por favor, tente novamente."}
+              </p>
+              <button
+                onClick={() => {
+                  setStatus("idle");
+                  setServerError("");
+                }}
+                className="inline-flex justify-center rounded-full bg-[#2563EB] px-7 py-3.5 text-sm font-semibold text-white hover:bg-[#1d4fd1] transition-colors"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="contacto" className="bg-[#F8FAFC] py-24 lg:py-28">
@@ -1078,98 +1236,196 @@ function ContactSection() {
         </Reveal>
 
         <Reveal delay={100} className="lg:col-span-3">
-          {sent ? (
-            <div className="rounded-2xl bg-white ring-1 ring-[#0B1F3A]/8 p-10 text-center">
-              <CheckCircle2 size={32} className="text-[#2563EB] mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-[#0B1F3A] mb-2">Pedido recebido.</h3>
-              <p className="text-sm text-[#0B1F3A]/60">
-                Obrigado, {form.nome.split(" ")[0]}. Vamos analisar a sua mensagem e
-                entrar em contacto em breve.
-              </p>
-            </div>
-          ) : (
-            <div className="rounded-2xl bg-white ring-1 ring-[#0B1F3A]/8 p-7 sm:p-8">
-              <div className="grid sm:grid-cols-2 gap-5">
-                <div>
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">Nome</label>
-                  <input
-                    value={form.nome}
-                    onChange={update("nome")}
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">Empresa</label>
-                  <input
-                    value={form.empresa}
-                    onChange={update("empresa")}
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">Email</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={update("email")}
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">WhatsApp</label>
-                  <input
-                    value={form.whatsapp}
-                    onChange={update("whatsapp")}
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">
-                    Segmento da empresa
-                  </label>
-                  <select
-                    value={form.segmento}
-                    onChange={update("segmento")}
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors bg-white"
-                  >
-                    <option value="">Selecionar</option>
-                    {segmentOptions.map((o) => (
-                      <option key={o} value={o}>{o}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">
-                    Volume aprox. de vendas
-                  </label>
-                  <input
-                    value={form.volume}
-                    onChange={update("volume")}
-                    placeholder="Ex.: 300 vendas/mês"
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors placeholder:text-[#0B1F3A]/30"
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <label className="text-xs font-semibold text-[#0B1F3A]/60">Mensagem</label>
-                  <textarea
-                    rows={4}
-                    value={form.mensagem}
-                    onChange={update("mensagem")}
-                    className="mt-1.5 w-full rounded-xl border border-[#0B1F3A]/12 px-4 py-2.5 text-sm text-[#0B1F3A] outline-none focus:border-[#2563EB] transition-colors resize-none"
-                  />
-                </div>
+          <div className="rounded-2xl bg-white ring-1 ring-[#0B1F3A]/8 p-7 sm:p-8">
+            <div className="grid sm:grid-cols-2 gap-5">
+              <div>
+                <label className="text-xs font-semibold text-[#0B1F3A]/60">
+                  Nome <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.nome}
+                  onChange={update("nome")}
+                  placeholder="O seu nome completo"
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors placeholder:text-[#0B1F3A]/30 ${
+                    errors.nome
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                  }`}
+                />
+                {errors.nome && (
+                  <p className="mt-1 text-xs text-red-500">{errors.nome}</p>
+                )}
               </div>
-              {error && (
-                <p className="mt-5 text-sm font-medium text-red-600">{error}</p>
-              )}
-              <button
-                onClick={submit}
-                className="mt-7 w-full sm:w-auto inline-flex justify-center rounded-full bg-[#2563EB] px-8 py-3.5 text-sm font-semibold text-white hover:bg-[#1d4fd1] transition-colors"
-              >
-                Solicitar diagnóstico
-              </button>
+
+              <div>
+                <label className="text-xs font-semibold text-[#0B1F3A]/60">
+                  Empresa <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.empresa}
+                  onChange={update("empresa")}
+                  placeholder="Nome da empresa"
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors placeholder:text-[#0B1F3A]/30 ${
+                    errors.empresa
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                  }`}
+                />
+                {errors.empresa && (
+                  <p className="mt-1 text-xs text-red-500">{errors.empresa}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#0B1F3A]/60">
+                  Email <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={update("email")}
+                  placeholder="email@exemplo.com"
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors placeholder:text-[#0B1F3A]/30 ${
+                    errors.email
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                  }`}
+                />
+                {errors.email && (
+                  <p className="mt-1 text-xs text-red-500">{errors.email}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-[#0B1F3A]/60">
+                  Telefone / WhatsApp <span className="text-red-500">*</span>
+                </label>
+                <input
+                  value={form.telefone}
+                  onChange={update("telefone")}
+                  placeholder="+244 900 000 000"
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors placeholder:text-[#0B1F3A]/30 ${
+                    errors.telefone
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                  }`}
+                />
+                {errors.telefone && (
+                  <p className="mt-1 text-xs text-red-500">{errors.telefone}</p>
+                )}
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-[#0B1F3A]/60">
+                  O que procura? <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={form.interesse}
+                  onChange={update("interesse")}
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors bg-white ${
+                    errors.interesse
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                  } ${!form.interesse ? "text-[#0B1F3A]/30" : ""}`}
+                >
+                  <option value="">Selecionar...</option>
+                  {interesseOptions.map((o) => (
+                    <option key={o} value={o}>
+                      {o}
+                    </option>
+                  ))}
+                </select>
+                {errors.interesse && (
+                  <p className="mt-1 text-xs text-red-500">{errors.interesse}</p>
+                )}
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-[#0B1F3A]/60">
+                  Mensagem <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  rows={4}
+                  value={form.mensagem}
+                  onChange={update("mensagem")}
+                  placeholder="Conte-nos brevemente o que gostaria de descobrir ou melhorar através dos seus dados."
+                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors resize-none placeholder:text-[#0B1F3A]/30 ${
+                    errors.mensagem
+                      ? "border-red-400 focus:border-red-500"
+                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                  }`}
+                />
+                {errors.mensagem && (
+                  <p className="mt-1 text-xs text-red-500">{errors.mensagem}</p>
+                )}
+              </div>
             </div>
-          )}
+
+            <div className="mt-5">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => {
+                    setConsent(e.target.checked);
+                    setErrors((prev) => {
+                      const next = { ...prev };
+                      delete next.consent;
+                      return next;
+                    });
+                  }}
+                  className="mt-0.5 h-4 w-4 rounded border-[#0B1F3A]/20 text-[#2563EB] focus:ring-[#2563EB]"
+                />
+                <span className="text-xs leading-relaxed text-[#0B1F3A]/60">
+                  Concordo que os dados fornecidos sejam utilizados pela Nexora Data
+                  para responder à minha solicitação e entrar em contacto comigo sobre
+                  os serviços solicitados.{" "}
+                  <a
+                    href="#"
+                    className="underline text-[#2563EB] hover:text-[#1d4fd1]"
+                  >
+                    Política de Privacidade
+                  </a>
+                </span>
+              </label>
+              {errors.consent && (
+                <p className="mt-1 text-xs text-red-500">{errors.consent}</p>
+              )}
+            </div>
+
+            <button
+              onClick={submit}
+              disabled={status === "sending"}
+              className="mt-7 w-full sm:w-auto inline-flex justify-center items-center gap-2 rounded-full bg-[#2563EB] px-8 py-3.5 text-sm font-semibold text-white transition-colors disabled:opacity-60 disabled:cursor-not-allowed hover:bg-[#1d4fd1]"
+            >
+              {status === "sending" ? (
+                <>
+                  <svg
+                    className="animate-spin h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                  Enviando...
+                </>
+              ) : (
+                "Solicitar orçamento"
+              )}
+            </button>
+          </div>
         </Reveal>
       </div>
     </section>
