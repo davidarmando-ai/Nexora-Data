@@ -55,6 +55,7 @@ const NAV_LINKS = [
   { label: "Como funciona", href: "#como-funciona" },
   { label: "Soluções", href: "#solucoes" },
   { label: "Preços", href: "#precos" },
+  { label: "FAQ", href: "#faq" },
   { label: "Contacto", href: "#contacto" },
 ];
 
@@ -912,10 +913,9 @@ function TrustSection() {
 }
 
 const faqs = [
-  { q: "Preciso de ter um sistema avançado para trabalhar com a Nexora Data?", a: "Não. Trabalhamos com o que já existe: ficheiros Excel, exportações de sistemas de facturação, registos de vendas ou folhas de cálculo internas." },
   { q: "E se os meus dados estiverem desorganizados?", a: "É o cenário mais comum. O tratamento e a organização dos dados fazem parte do serviço, antes de qualquer análise." },
   { q: "Quanto tempo leva a primeira entrega?", a: "Depende do volume e do estado dos dados. Após o diagnóstico indicamos um prazo concreto antes de iniciar o trabalho." },
-  { q: "Os meus dados ficam seguros?", a: "Sim. Os dados são usados apenas para a análise contratada, com acesso restrito à equipa do projeto e acordo de confidencialidade sempre que solicitado." },
+  { q: "Os meus dados ficam seguros?", a: "Sim. Os dados são usados apenas para a análise contratada, com acesso restrito à equipa do projeto." },
   { q: "Que formato de dados devo enviar?", a: "Excel, CSV ou outras fontes que a sua empresa já utiliza." },
   { q: "A minha empresa é pequena. Faz sentido para mim?", a: "Faz. Empresas pequenas costumam ganhar mais rapidamente, porque poucas decisões corrigidas já têm impacto directo no resultado." },
   { q: "O que recebo no final?", a: "Um dashboard com os seus indicadores, a análise interpretada e recomendações práticas priorizadas para acção." },
@@ -955,7 +955,7 @@ function FaqItem({ q, a, open, onToggle }) {
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState(0);
   return (
-    <section className="bg-white py-24 lg:py-28">
+    <section id="faq" className="bg-white py-24 lg:py-28">
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
         <Reveal className="mb-10">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0B1F3A]">Ainda com dúvidas?</h2>
