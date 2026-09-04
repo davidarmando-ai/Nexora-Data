@@ -912,11 +912,15 @@ function TrustSection() {
 }
 
 const faqs = [
-  { q: "Preciso de ter Power BI ou outra ferramenta instalada?", a: "Não. Nós tratamos e apresentamos os dados; você só precisa de nos enviar a informação que já tem." },
+  { q: "Preciso de ter um sistema avançado para trabalhar com a Nexora Data?", a: "Não. Trabalhamos com o que já existe: ficheiros Excel, exportações de sistemas de facturação, registos de vendas ou folhas de cálculo internas." },
+  { q: "E se os meus dados estiverem desorganizados?", a: "É o cenário mais comum. O tratamento e a organização dos dados fazem parte do serviço, antes de qualquer análise." },
+  { q: "Quanto tempo leva a primeira entrega?", a: "Depende do volume e do estado dos dados. Após o diagnóstico indicamos um prazo concreto antes de iniciar o trabalho." },
+  { q: "Os meus dados ficam seguros?", a: "Sim. Os dados são usados apenas para a análise contratada, com acesso restrito à equipa do projeto e acordo de confidencialidade sempre que solicitado." },
   { q: "Que formato de dados devo enviar?", a: "Excel, CSV ou outras fontes que a sua empresa já utiliza." },
-  { q: "Quanto tempo demora a entrega?", a: "Depende do volume e complexidade dos dados — o prazo é definido logo após o diagnóstico inicial." },
-  { q: "Os meus dados ficam seguros?", a: "Sim. Os dados são tratados com confidencialidade e usados apenas para a análise contratada." },
+  { q: "A minha empresa é pequena. Faz sentido para mim?", a: "Faz. Empresas pequenas costumam ganhar mais rapidamente, porque poucas decisões corrigidas já têm impacto directo no resultado." },
+  { q: "O que recebo no final?", a: "Um dashboard com os seus indicadores, a análise interpretada e recomendações práticas priorizadas para acção." },
   { q: "Preciso de perceber de tecnologia ou análise de dados?", a: "Não. As entregas são pensadas para gestores, não para analistas técnicos." },
+  { q: "Trabalham com empresas fora de Luanda?", a: "Sim. Todo o processo pode ser feito à distância, com reuniões online e entrega digital." },
 ];
 
 function FaqItem({ q, a, open, onToggle }) {
