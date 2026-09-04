@@ -1043,6 +1043,7 @@ function ContactSection() {
     mensagem: "",
   });
   const [consent, setConsent] = useState(false);
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const [errors, setErrors] = useState({});
   const [status, setStatus] = useState("idle");
   const [serverError, setServerError] = useState("");
@@ -1384,12 +1385,17 @@ function ContactSection() {
                   Concordo que os dados fornecidos sejam utilizados pela Nexora Data
                   para responder à minha solicitação e entrar em contacto comigo sobre
                   os serviços solicitados.{" "}
-                  <a
-                    href="#"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setPrivacyOpen(true);
+                    }}
                     className="underline text-[#2563EB] hover:text-[#1d4fd1]"
                   >
                     Política de Privacidade
-                  </a>
+                  </button>
                 </span>
               </label>
               {errors.consent && (
@@ -1432,6 +1438,84 @@ function ContactSection() {
           </div>
         </Reveal>
       </div>
+
+      {privacyOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4"
+          onClick={() => setPrivacyOpen(false)}
+        >
+          <div className="absolute inset-0 bg-[#0B1F3A]/60 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-2xl max-h-[85vh] flex flex-col rounded-2xl bg-white shadow-[0_40px_80px_-30px_rgba(0,0,0,0.5)] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-[#0B1F3A]/10">
+              <h3 className="text-lg font-bold text-[#0B1F3A]">
+                Política de Privacidade
+              </h3>
+              <button
+                onClick={() => setPrivacyOpen(false)}
+                aria-label="Fechar"
+                className="h-9 w-9 rounded-full bg-[#F1F5F9] flex items-center justify-center text-[#0B1F3A]/60 hover:text-[#0B1F3A] hover:bg-[#E2E8F0] transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="overflow-y-auto px-6 sm:px-8 py-6 text-sm leading-relaxed text-[#0B1F3A]/70">
+              <p className="mb-4">
+                A Nexora Data ("nós") valoriza a privacidade dos seus dados. Esta política
+                explica como recolhemos e utilizamos as informações que nos envia através
+                deste formulário de contacto.
+              </p>
+              <h4 className="font-bold text-[#0B1F3A] mb-1 mt-5">
+                1. Dados recolhidos
+              </h4>
+              <p className="mb-4">
+                Recolhemos apenas os dados que fornece voluntariamente: o seu nome, o nome
+                da sua empresa, o seu email, telefone/WhatsApp, o tipo de serviço que
+                procura e a mensagem enviada.
+              </p>
+              <h4 className="font-bold text-[#0B1F3A] mb-1 mt-5">
+                2. Finalidade do tratamento
+              </h4>
+              <p className="mb-4">
+                Os dados fornecidos são utilizados exclusivamente para responder à sua
+                solicitação, entrar em contacto consigo e prestar informações sobre os
+                serviços solicitados. Não utilizamos os seus dados para outros fins.
+              </p>
+              <h4 className="font-bold text-[#0B1F3A] mb-1 mt-5">
+                3. Partilha de dados
+              </h4>
+              <p className="mb-4">
+                Não vendemos, alugamos ou partilhamos os seus dados pessoais com terceiros,
+                exceto quando necessário para o funcionamento técnico do serviço (por
+                exemplo, envio de email) ou quando exigido por lei.
+              </p>
+              <h4 className="font-bold text-[#0B1F3A] mb-1 mt-5">
+                4. Segurança
+              </h4>
+              <p className="mb-4">
+                Implementamos medidas técnicas e organizativas adequadas para proteger os
+                seus dados contra acesso não autorizado, perda ou alteração.
+              </p>
+              <h4 className="font-bold text-[#0B1F3A] mb-1 mt-5">
+                5. Os seus direitos
+              </h4>
+              <p className="mb-4">
+                Pode a qualquer momento solicitar o acesso, correção ou eliminação dos
+                dados que nos enviou, contactando a Nexora Data. Caso não pretenda receber
+                mais contactos, basta informar-nos e deixaremos de reter/tratar os seus
+                dados.
+              </p>
+              <h4 className="font-bold text-[#0B1F3A] mb-1 mt-5">6. Contacto</h4>
+              <p>
+                Para questões relacionadas com a sua privacidade, entre em contacto connosco
+                através do email <span className="font-medium">contacto@nexoradata.ao</span>.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
