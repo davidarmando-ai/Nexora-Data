@@ -675,7 +675,7 @@ const plans = [
     name: "Inteligência Contínua", price: "60.000 Kz", highlighted: false,
     desc: "Para empresas que querem acompanhamento contínuo dos seus indicadores.",
     items: ["Tudo do plano Performance", "Atualização periódica", "Análise recorrente", "Relatórios", "Recomendações", "Acompanhamento de indicadores", "Reunião de análise"],
-    cta: "Falar com especialista",
+    cta: "Solicitar orçamento",
   },
 ];
 
@@ -1507,7 +1507,7 @@ function Footer() {
 function FloatingWhatsapp() {
   return (
     <a
-      href={whatsappLink("Olá! Quero saber mais sobre a Nexora Data.")}
+      href={whatsappLink("Olá! Gostaria de solicitar os vossos serviços")}
       target="_blank"
       rel="noreferrer"
       aria-label="Falar pelo WhatsApp"
