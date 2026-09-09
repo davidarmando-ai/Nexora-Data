@@ -60,7 +60,7 @@ const NAV_LINKS = [
   { label: "Contacto", href: "#contacto" },
 ];
 
-const WHATSAPP_NUMBER = "244959518914";
+const WHATSAPP_NUMBER = "244921124367";
 const whatsappLink = (msg) =>
   `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
 
@@ -1438,7 +1438,7 @@ function ContactSection({ onAnalysisUnlocked }) {
               contacto para o diagnóstico inicial.
             </p>
             <a
-              href={whatsappLink("Olá! Gostaria de falar sobre a Nexora Data.")}
+              href={whatsappLink("Olá! Gostaria de solicitar os vossos serviços.")}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2.5 rounded-full bg-white ring-1 ring-[#0B1F3A]/10 px-5 py-3 text-sm font-semibold text-[#0B1F3A] hover:ring-[#2563EB]/30 transition-colors"
