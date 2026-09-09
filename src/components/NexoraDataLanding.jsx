@@ -1299,10 +1299,10 @@ function FinalCta() {
               href="#contacto"
               className="inline-flex justify-center items-center rounded-full bg-[#38BDF8] px-7 py-3.5 text-[15px] font-semibold text-[#0B1F3A] hover:bg-[#20aef0] transition-colors"
             >
-              Solicitar orçamento gratuito
+              Solicitar orçamento
             </a>
             <a
-              href={whatsappLink("Olá! Quero solicitar um diagnóstico gratuito da Nexora Data.")}
+              href={whatsappLink("Olá! Quero solicitar os vossos serviços.")}
               target="_blank"
               rel="noreferrer"
               className="inline-flex justify-center items-center gap-2 rounded-full border border-white/20 px-7 py-3.5 text-[15px] font-semibold text-white hover:bg-white/10 transition-colors"
@@ -1497,7 +1497,7 @@ function ContactSection({ onAnalysisUnlocked }) {
               contacto para o diagnóstico inicial.
             </p>
             <a
-              href={whatsappLink("Olá! Gostaría de solicitar os vossos serviços.")}
+              href={whatsappLink("Olá! Gostaria de solicitar os vossos serviços.")}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-2.5 rounded-full bg-white ring-1 ring-[#0B1F3A]/10 px-5 py-3 text-sm font-semibold text-[#0B1F3A] hover:ring-[#2563EB]/30 transition-colors"
