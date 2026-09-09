@@ -1252,9 +1252,9 @@ function FaqItem({ q, a, open, onToggle }) {
 function FaqSection() {
   const [openIndex, setOpenIndex] = useState(0);
   return (
-    <section id="faq" className="bg-white py-24 lg:py-28">
+    <section id="faq" className="bg-white pb-24 lg:pb-28 pt-14 lg:pt-20">
       <div className="max-w-3xl mx-auto px-6 lg:px-10">
-        <Reveal className="mb-10">
+        <Reveal className="mb-8">
           <h2 className="text-3xl sm:text-4xl font-bold text-[#0B1F3A]">Ainda com dúvidas?</h2>
         </Reveal>
         <Reveal delay={80}>
