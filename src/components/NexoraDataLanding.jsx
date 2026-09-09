@@ -1885,10 +1885,10 @@ function Footer() {
                 <MapPin size={15} className="text-[#38BDF8]" /> Luanda, Angola
               </span>
               <a href="mailto:contacto@nexoradata.ao" className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors">
-                <Mail size={15} className="text-[#38BDF8]" /> contacto@nexoradata.ao
+                <Mail size={15} className="text-[#38BDF8]" /> nexoradata207@gmail.com
               </a>
               <a href={whatsappLink("Olá!")} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors">
-                <Phone size={15} className="text-[#38BDF8]" /> +244 900 000 000
+                <Phone size={15} className="text-[#38BDF8]" /> +244 921 124 367
               </a>
             </div>
           </div>
