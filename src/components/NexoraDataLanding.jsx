@@ -1335,10 +1335,10 @@ function ContactSection({ onAnalysisUnlocked }) {
     nome: "",
     empresa: "",
     email: "",
-    telefone: "",
     interesse: "",
     mensagem: "",
   });
+  const [phoneDigits, setPhoneDigits] = useState("");
   const [consent, setConsent] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
   const [errors, setErrors] = useState({});
@@ -1355,6 +1355,18 @@ function ContactSection({ onAnalysisUnlocked }) {
     });
   };
 
+  const updatePhone = (e) => {
+    let digits = e.target.value.replace(/\D/g, "");
+    if (digits.startsWith("244") && digits.length > 9) digits = digits.slice(3);
+    digits = digits.slice(0, 9);
+    setPhoneDigits(digits);
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.telefone;
+      return next;
+    });
+  };
+
   const validate = () => {
     const e = {};
     if (!form.nome.trim()) e.nome = "Por favor, informe o seu nome.";
@@ -1362,8 +1374,10 @@ function ContactSection({ onAnalysisUnlocked }) {
       e.empresa = "Por favor, informe o nome da sua empresa.";
     if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       e.email = "Introduza um email válido.";
-    if (!form.telefone.trim())
+    if (!phoneDigits)
       e.telefone = "Por favor, informe o seu telefone/WhatsApp.";
+    else if (phoneDigits.length !== 9)
+      e.telefone = "O telefone deve conter exatamente 9 dígitos.";
     if (!form.interesse) e.interesse = "Selecione o que procura.";
     if (!form.mensagem.trim())
       e.mensagem = "Conte-nos um pouco mais sobre o que procura.";
@@ -1384,11 +1398,15 @@ function ContactSection({ onAnalysisUnlocked }) {
     setServerError("");
     setStatus("sending");
 
+    const formattedPhone = phoneDigits.length
+      ? `+244 ${phoneDigits.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3")}`
+      : "";
+
     try {
       const res = await fetch("/api/send-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, telefone: formattedPhone }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -1603,16 +1621,30 @@ function ContactSection({ onAnalysisUnlocked }) {
                 <label className="text-xs font-semibold text-[#0B1F3A]/60">
                   Telefone / WhatsApp <span className="text-red-500">*</span>
                 </label>
-                <input
-                  value={form.telefone}
-                  onChange={update("telefone")}
-                  placeholder="+244 900 000 000"
-                  className={`mt-1.5 w-full rounded-xl border px-4 py-2.5 text-sm text-[#0B1F3A] outline-none transition-colors placeholder:text-[#0B1F3A]/30 ${
+                <div
+                  className={`mt-1.5 flex items-stretch rounded-xl border overflow-hidden transition-colors bg-white ${
                     errors.telefone
-                      ? "border-red-400 focus:border-red-500"
-                      : "border-[#0B1F3A]/12 focus:border-[#2563EB]"
+                      ? "border-red-400"
+                      : "border-[#0B1F3A]/12 focus-within:border-[#2563EB]"
                   }`}
-                />
+                >
+                  <span
+                    className="flex items-center px-3.5 text-sm font-semibold text-[#0B1F3A]/60 bg-[#F1F5F9] border-r border-[#0B1F3A]/10"
+                    aria-hidden="true"
+                  >
+                    +244
+                  </span>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    value={phoneDigits}
+                    onChange={updatePhone}
+                    placeholder="900 000 000"
+                    maxLength={9}
+                    className="w-full flex-1 min-w-0 px-3.5 py-2.5 text-sm text-[#0B1F3A] outline-none bg-transparent placeholder:text-[#0B1F3A]/30"
+                  />
+                </div>
                 {errors.telefone && (
                   <p className="mt-1 text-xs text-red-500">{errors.telefone}</p>
                 )}

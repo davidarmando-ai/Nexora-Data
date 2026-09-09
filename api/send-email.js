@@ -45,6 +45,11 @@ export default async function handler(req, res) {
       .status(400)
       .json({ error: "Por favor, informe o seu telefone/WhatsApp." });
   }
+  if (!/^\+244\d{9}$/.test(telefone.replace(/\s/g, ""))) {
+    return res
+      .status(400)
+      .json({ error: "O telefone deve conter exatamente 9 dígitos." });
+  }
   if (!interesse) {
     return res.status(400).json({ error: "Selecione o que procura." });
   }
