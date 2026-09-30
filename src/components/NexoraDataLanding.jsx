@@ -661,22 +661,16 @@ function InsightsFlow() {
 
 const plans = [
   {
-    name: "Essencial", price: "20.000 Kz", highlighted: false,
+    name: "Essencial", price: "20.000 Kz",
     desc: "Ideal para pequenas empresas que precisam começar a acompanhar os seus principais indicadores.",
     items: ["Dashboard básico", "KPIs principais", "Tratamento básico dos dados", "Análise inicial", "Entrega digital"],
-    cta: "Solicitar orçamento",
-  },
-  {
-    name: "Performance", price: "35.000 Kz", highlighted: true,
-    desc: "Para empresas que querem compreender melhor as suas vendas e tomar decisões baseadas em dados.",
-    items: ["Dashboard completo", "KPIs personalizados", "Tratamento e organização dos dados", "Análise de vendas", "Análise de produtos", "Análise de vendedores", "Insights", "Recomendações", "Relatório executivo"],
     cta: "Quero este plano",
   },
   {
-    name: "Inteligência Contínua", price: "60.000 Kz", highlighted: false,
-    desc: "Para empresas que querem acompanhamento contínuo dos seus indicadores.",
-    items: ["Tudo do plano Performance", "Atualização periódica", "Análise recorrente", "Relatórios", "Recomendações", "Acompanhamento de indicadores", "Reunião de análise"],
-    cta: "Solicitar orçamento",
+    name: "Performance", price: "35.000 Kz",
+    desc: "Para empresas que querem compreender melhor as suas vendas e tomar decisões baseadas em dados.",
+    items: ["Dashboard completo", "KPIs personalizados", "Tratamento e organização dos dados", "Análise de vendas", "Análise de produtos", "Análise de vendedores", "Insights", "Recomendações", "Relatório executivo"],
+    cta: "Quero este plano",
   },
 ];
 
@@ -690,55 +684,28 @@ function Pricing() {
           </h2>
         </Reveal>
 
-        <div className="grid lg:grid-cols-3 gap-6 items-start">
+        <div className="grid lg:grid-cols-2 gap-6">
           {plans.map((p, i) => (
-            <Reveal key={p.name} delay={i * 110}>
-              <div
-                className={`h-full rounded-3xl p-8 flex flex-col ${
-                  p.highlighted
-                    ? "bg-[#0B1F3A] ring-1 ring-[#0B1F3A] shadow-[0_30px_60px_-25px_rgba(11,31,58,0.5)] lg:-translate-y-3"
-                    : "bg-white ring-1 ring-[#0B1F3A]/8"
-                }`}
-              >
-                {p.highlighted && (
-                  <span className="self-start mb-4 rounded-full bg-[#38BDF8]/15 px-3 py-1 text-[11px] font-bold text-[#38BDF8]">
-                    Mais escolhido
-                  </span>
-                )}
-                <h3
-                  className={`text-lg font-bold mb-1 ${
-                    p.highlighted ? "text-white" : "text-[#0B1F3A]"
-                  }`}
-                >
+            <Reveal key={p.name} delay={i * 110} className="h-full">
+              <div className="h-full rounded-3xl bg-[#0B1F3A] ring-1 ring-[#0B1F3A] shadow-[0_30px_60px_-25px_rgba(11,31,58,0.5)] p-8 flex flex-col">
+                <h3 className="text-lg font-bold mb-1 text-white">
                   {p.name}
                 </h3>
-                <p
-                  className={`text-2xl font-extrabold mb-1 ${
-                    p.highlighted ? "text-white" : "text-[#0B1F3A]"
-                  }`}
-                >
+                <p className="text-2xl font-extrabold mb-1 text-white">
                   A partir de {p.price}
                 </p>
-                <p
-                  className={`text-sm leading-relaxed mb-6 ${
-                    p.highlighted ? "text-white/60" : "text-[#0B1F3A]/55"
-                  }`}
-                >
+                <p className="text-sm leading-relaxed mb-6 text-white/60">
                   {p.desc}
                 </p>
                 <ul className="flex flex-col gap-2.5 mb-8 flex-1">
                   {p.items.map((it) => (
                     <li
                       key={it}
-                      className={`flex items-start gap-2.5 text-sm ${
-                        p.highlighted ? "text-white/85" : "text-[#0B1F3A]/75"
-                      }`}
+                      className="flex items-start gap-2.5 text-sm text-white/85"
                     >
                       <CheckCircle2
                         size={16}
-                        className={`mt-0.5 shrink-0 ${
-                          p.highlighted ? "text-[#38BDF8]" : "text-[#2563EB]"
-                        }`}
+                        className="mt-0.5 shrink-0 text-[#38BDF8]"
                       />
                       {it}
                     </li>
@@ -746,11 +713,7 @@ function Pricing() {
                 </ul>
                 <a
                   href="#contacto"
-                  className={`inline-flex justify-center rounded-full px-6 py-3 text-sm font-semibold transition-colors ${
-                    p.highlighted
-                      ? "bg-[#38BDF8] text-[#0B1F3A] hover:bg-[#20aef0]"
-                      : "bg-[#0B1F3A] text-white hover:bg-[#132a4d]"
-                  }`}
+                  className="inline-flex justify-center rounded-full bg-[#38BDF8] px-6 py-3 text-sm font-semibold text-[#0B1F3A] hover:bg-[#20aef0] transition-colors"
                 >
                   {p.cta}
                 </a>
