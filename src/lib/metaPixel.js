@@ -1,5 +1,5 @@
 /**
- * Meta Pixel — implementação centralizada e reutilizável.
+ * Meta Pixel — implementação centralizada e reutilizável (instância única).
  *
  * Objetivo: medir comportamento e conversões (PageView / Lead / Contact)
  * sem enviar dados pessoais (nome, email, telefone, mensagem) para o Meta.
@@ -8,21 +8,33 @@
  *   VITE_META_PIXEL_ID = ID do pixel (Events Manager)
  *   - Local: ficheiro .env (não é versionado)
  *   - Vercel: Project Settings > Environment Variables (todas que aplicam)
+ *
+ * IMPORTANTE — o stub de fbq segue o padrão oficial do Meta, na íntegra:
+ *   - `fbq.callMethod` NÃO é pré-definido. Fica `undefined` até o
+ *     fbevents.js carregar e o definir. Definimo-lo aqui faria
+ *     `fbq.callMethod` chamar `window.fbq.callMethod` — que é o próprio
+ *     `fbq` — causando recursão infinita (Maximum call stack size exceeded).
+ *   - `window._fbq` é definido, como exige o loader do Meta para detetar
+ *     corretamente a versão (evita "Multiple pixels with conflicting versions").
+ *   - `fbq.push = fbq` para compatibilidade com o formato array do Meta.
  */
 
 const PIXEL_ID = import.meta.env.VITE_META_PIXEL_ID;
 
 const SCRIPT_ID = "meta-pixel-script";
+const SCRIPT_SRC = "https://connect.facebook.net/en_US/fbevents.js";
 
 let initialized = false;
 let pageViewSent = false;
 
 const isBrowser = () => typeof window !== "undefined";
 
+const hasPixelId = () =>
+  typeof PIXEL_ID === "string" && /^\d{6,20}$/.test(PIXEL_ID.trim());
+
 /**
- * Opt-out explícito. Só bloqueia se o utilizador (ou um teste manual)
- * tiver definido "denied". Por omissão o tracking está ativo, para não
- * alterar o comportamento atual do site.
+ * Opt-out explícito. Só bloqueia se o valor for "denied".
+ * Por omissão o tracking está ativo, para não alterar o site.
  */
 const isAllowed = () => {
   if (!isBrowser()) return false;
@@ -33,53 +45,53 @@ const isAllowed = () => {
   }
 };
 
-const hasPixelId = () =>
-  typeof PIXEL_ID === "string" && /^\d{6,20}$/.test(PIXEL_ID.trim());
-
-/** Carrega o script do Meta uma única vez. */
+/**
+ * Injeta o stub oficial do Meta e carrega o fbevents.js UMA vez.
+ * Retorna true se o pixel estiver pronto a ser usado.
+ */
 export function initMetaPixel() {
-  if (!isBrowser() || !hasPixelId() || initialized) return;
-  if (document.getElementById(SCRIPT_ID)) return;
+  if (!isBrowser() || !hasPixelId() || initialized) return !!window.fbq;
+  initialized = true;
 
-  if (!window.fbq) {
-    /* eslint-disable no-multi-assign */
-    const fbq = (...args) => {
-      if (fbq.callMethod) return fbq.callMethod(...args);
-      fbq.queue.push(args);
-    };
-    /* eslint-enable no-multi-assign */
+  // Reutiliza uma instância existente (ex.: instalada via GTM) sem
+  // a duplicar e sem re-inicializar — uma única fonte de verdade.
+  if (window.fbq) return true;
 
-    fbq.queue = [];
-    fbq.loaded = true;
-    fbq.version = "2.0";
-    fbq.callMethod = (...args) => {
-      window.fbq.callMethod
-        ? window.fbq.callMethod(...args)
-        : window.fbq.queue.push(args);
-    };
+  if (document.getElementById(SCRIPT_ID)) return true;
 
-    window.fbq = fbq;
-  }
+  const fbq = function (...args) {
+    if (fbq.callMethod) fbq.callMethod.apply(fbq, args);
+    else fbq.queue.push(args);
+  };
+
+  if (!window._fbq) window._fbq = fbq;
+
+  fbq.push = fbq;
+  fbq.loaded = true;
+  fbq.version = "2.0";
+  fbq.queue = [];
+
+  window.fbq = fbq;
 
   const script = document.createElement("script");
   script.id = SCRIPT_ID;
   script.async = true;
-  script.src = "https://connect.facebook.net/en_US/fbevents.js";
-  document.head.appendChild(script);
+  script.src = SCRIPT_SRC;
+  const first = document.getElementsByTagName("script")[0];
+  first.parentNode.insertBefore(script, first);
 
   window.fbq("init", PIXEL_ID.trim());
-  initialized = true;
+  return true;
 }
 
 const ready = () => {
   if (!isAllowed() || !hasPixelId()) return false;
-  initMetaPixel();
-  return !!window.fbq;
+  return initMetaPixel() && !!window.fbq;
 };
 
 /**
- * PageView — disparado uma vez por carregamento de página.
- * A guarda em memória evita duplicados no mesmo carregamento
+ * PageView — uma vez por carregamento de página.
+ * Guarda em memória evita duplicados no mesmo carregamento
  * (ex.: duplo mount do React StrictMode em desenvolvimento).
  */
 export function trackPageView() {
@@ -90,7 +102,7 @@ export function trackPageView() {
 
 /**
  * Contact — clique real do utilizador num link/botão de WhatsApp.
- * `placement` é apenas um rótulo interno do site (não é dado pessoal).
+ * `placement` é apenas um rótulo interno (secção do site), não dado pessoal.
  */
 export function trackContact(placement = "whatsapp") {
   if (!ready()) return;
@@ -99,7 +111,7 @@ export function trackContact(placement = "whatsapp") {
 
 /**
  * Lead — pedido de orçamento submetido com sucesso.
- * Só deve ser chamada depois de uma submissão válida e confirmada pelo servidor.
+ * Só deve ser chamada depois de uma submissão válida confirmada pelo servidor.
  */
 export function trackLead(content = "orcamento") {
   if (!ready()) return;
